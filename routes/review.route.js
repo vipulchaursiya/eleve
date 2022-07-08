@@ -6,7 +6,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const moment = require('moment');
 
-router.post('/add', async (req, res) => {
+router.post('/getFromLink', async (req, res) => {
   try {
     const { pageLink } = req.body;
     let pagenumber = 0,
@@ -46,18 +46,19 @@ router.post('/add', async (req, res) => {
           });
         }
       });
-
-      const ReviewedSavedPromiseArr = [];
-      for (let i = 0; i < reviewObj.length; i++) {
-        const ReviewedSavedPromise = Review.create(reviewObj[i]);
-        ReviewedSavedPromiseArr.push(ReviewedSavedPromise);
-      }
-
-      await Promise.all(ReviewedSavedPromiseArr);
-      return res.json({ message: 'Data Saved' });
-    } else {
-      return res.status(400).json({ message: 'Reviews for this url already exists' });
+      await Review.insertMany(reviewObj);
     }
+    const result = await Review.find(
+      { EdpNo: EdpNo },
+      { title: 1, description: 1, _id: 0, EdpNo: 1, ratingsDetail: 1, name: 1, date: 1 }
+    )
+      .sort({ date: -1 })
+      .lean();
+
+    result.forEach((el) => {
+      el.date = moment(el.date).format('MMM DD, YYYY');
+    });
+    return res.json({ data: result });
   } catch (e) {
     console.log(e);
     return res.status(500).send({ message: 'Internal Server Error, Please try after sometime.' });
