@@ -15,7 +15,12 @@ router.post('/getFromLink', async (req, res) => {
       return res.status(400).json({ message: 'EdpNo should exist in url' });
 
     const queryData = url.parse(pageLink, true).query;
-    queryData.EdpNo ? (EdpNo = queryData.EdpNo) : '';
+    if (queryData.EdpNo && queryData.EdpNo.trim().length) {
+      EdpNo = queryData.EdpNo;
+    } else {
+      return res.status(400).json({ message: 'EdpNo should not be empty' });
+    }
+
     queryData.pagenumber ? (pagenumber = queryData.pagenumber) : '';
 
     // check if this page and edpNm already exists
@@ -24,7 +29,7 @@ router.post('/getFromLink', async (req, res) => {
       let result = await axios.post(pageLink);
       let $ = cheerio.load(result.data);
 
-      // get review body block
+      // get review body block from the page html
       const reviewBodyBlock = $('div.review');
       const reviewObj = [];
 
@@ -33,7 +38,6 @@ router.post('/getFromLink', async (req, res) => {
         let description = $(this).find('div.rightCol>blockquote>p').text();
         let ratingArr = $(this).find('div.leftCol>dl.itemReview > dd').text();
         let dateName = $(this).find('div.leftCol>dl.reviewer').text().split('\n');
-
         if (title.length || description.length) {
           reviewObj.push({
             title,
@@ -41,13 +45,18 @@ router.post('/getFromLink', async (req, res) => {
             EdpNo,
             pagenumber,
             ratingsDetail: getRatings(ratingArr),
-            name: dateName[2],
+            name: dateName[2].replace(/,/g, ''),
             date: dateName[4] !== ',' ? dateName[4] : '',
           });
         }
       });
+      if (reviewObj && reviewObj.length === 0) {
+        return res.json({ message: 'No review exist for given EdpNo' });
+      }
       await Review.insertMany(reviewObj);
     }
+
+    // find All review for EdpNm
     const result = await Review.find(
       { EdpNo: EdpNo },
       { title: 1, description: 1, _id: 0, EdpNo: 1, ratingsDetail: 1, name: 1, date: 1 }
@@ -81,7 +90,7 @@ router.get('/fetchAllReviews', async (req, res) => {
   }
 });
 
-router.get('/getProductByEdp/:id', async (req, res) => {
+router.get('/getProductReviewByEdp/:id', async (req, res) => {
   try {
     const edpNm = req.params.id;
     let reviews = await Review.find(
