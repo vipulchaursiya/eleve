@@ -18,5 +18,13 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {},
-  "description": ""
+  "description": "Project's Title: eleve",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vipulchaursiya/eleve.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vipulchaursiya/eleve/issues"
+  },
+  "homepage": "https://github.com/vipulchaursiya/eleve#readme"
 }
