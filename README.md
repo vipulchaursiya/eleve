@@ -11,8 +11,8 @@ Technologies : Nodejs, Expressjs, MongoDB, Mongoose, Javascript
 curl --location --request POST 'localhost:4000/api/reviews/getFromLink' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-"pageLink":"https://www.tigerdirect.com/applications/searchtools/item-details.asp?EdpNo=1416212&pagenumber=1&RSort=1&csid=ITD&recordsPerPage=5&body=REVIEWS#CustomerReviewsBlock"
-}'y
+"pageLink":"https://www.tigerdirect.com/applications/SearchTools/item-details.asp?EdpNo=1271820&sku=42632644&cm_re=Homepage-_-Zone3_5-_-CatId_36_42632644"
+}'
 
 // Please use this env var or can use you own
 

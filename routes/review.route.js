@@ -59,7 +59,7 @@ router.post('/getFromLink', async (req, res) => {
     // find All review for EdpNm
     const result = await Review.find(
       { EdpNo: EdpNo },
-      { title: 1, description: 1, _id: 0, EdpNo: 1, ratingsDetail: 1, name: 1, date: 1 }
+      { title: 1, description: 1, _id: 0, ratingsDetail: 1, name: 1, date: 1 }
     )
       .sort({ date: -1 })
       .lean();
